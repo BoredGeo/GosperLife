@@ -11,4 +11,4 @@ So far, only runs on Linux Ubuntu. In order to run in windows, the `os.system('c
  
  special cases (text files must be in the same directory): 
  * if board is larger than 25x25 and if user specifies 66 seeds, a canada goose is seeded (persistent pattern)
- * if board is larger than 38x38 and if user specifies 99 seeds, a gosper gun is seeded (generates spaceships)            
+ * if board is larger than 38x38 and if user specifies 99 seeds, a gosper gun is seeded (generates gliders)            
