@@ -1,5 +1,5 @@
 # GosperLife
-My attempt at Conway's game of life using Python, it's called Gosper because that was the first pattern I ran (a gosper gun).
+My attempt at [Conway's game of life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using Python, it's called Gosper because that was the first pattern I ran (a gosper glider gun).
 
 So far, only runs on Linux Ubuntu. In order to run in windows, the `os.system('clear')` command should be changed to `os.system('cls')`, at some point I will fix this.
 
