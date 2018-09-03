@@ -26,7 +26,6 @@ from itertools import product
 import numpy as np
 
 
-COUNTER = 0
 random.seed(time.time())
 
 
@@ -35,10 +34,11 @@ class Board:
     It can calculate the next step, seed the board and represent
     it as a string for the screen """
 
-    COLOR = [random.randint(0, 256)] * 3
-    dC = [5, 6, 7]
+    COLOR = np.random.randint(100, high=256, size=3)
+    dC = np.random.randint(6, high=16, size=3)
 
     def __init__(self, dim, seeds):
+        self.counter = 1
         self.board = np.zeros((dim, dim))
         self.dim = dim
         # seed board
@@ -64,13 +64,15 @@ class Board:
         """ changing the color of the board in the shell """
         for i in range(3):
             if ((cls.COLOR[i] + cls.dC[i]) > 255
-                    or (cls.COLOR[i] + cls.dC[i]) < 0):
+                    or (cls.COLOR[i] + cls.dC[i]) < 40):
                 cls.dC[i] *= -1
             cls.COLOR[i] += cls.dC[i]
 
-    def update_board(self, old):
+    def update_board(self, other):
         """ actual life calculation """
         self.update_rgb()
+        self.counter = other.counter
+        old = other.board
         for i in range(self.dim):
             for j in range(self.dim):
                 indj = range(j-1, j+2)
@@ -96,7 +98,7 @@ class Board:
                                else u"\u0020\u0020" for cell in row)
             str_rep += u"\u2551"+"\n"
         str_rep += u"\u203E"*2*(self.dim + 1)+"\n"
-        str_rep += "Game of life, iteration " + str(COUNTER+1) + "\n"
+        str_rep += "Game of life, iteration " + str(self.counter + 1) + "\n"
         return str_rep
 
     def seed_goose(self):
@@ -128,16 +130,14 @@ class Board:
 def print_board(board):
     """ gets array, delete previous display,
     prints it and flushes the display """
-    global COUNTER
     os.system('clear')
     print(board)
-    COUNTER += 1
+    board.counter += 1
     time.sleep(0.3)
 
 
 def game_on(board1, board2, num_of_iter):
     """ run the game """
-    global COUNTER
     exit_status = 0
     print("Game starting.\n")
     print_board(board1)
@@ -145,15 +145,15 @@ def game_on(board1, board2, num_of_iter):
     # main loop
     exit_game = False
     while not exit_game:
-        board2.update_board(board1.board)
+        board2.update_board(board1)
         print_board(board2)
         if board1 == board2:
             exit_status = 1
             exit_game = True
         board1, board2 = board2, board1
-        if COUNTER >= num_of_iter:
-            if input(f"Reached {num_of_iter} iterations, would you like \
-                      to continue {num_of_iter} more? (y/n) ").lower() == 'y':
+        if board1.counter >= num_of_iter:
+            if input(f"Reached {num_of_iter} iterations, would you like " +
+                     "to continue {num_of_iter} more? (y/n) ").lower() == 'y':
                 num_of_iter += num_of_iter
             else:
                 exit_game = True
@@ -168,12 +168,15 @@ def main():
         dim = 32
     # TODO: resize terminal to fit dimension sepcified by user
     seeds = int(input("Enter number of seeds (0 for random initialization): "))
-    if seeds < 1 or seeds > dim**2:
+    if seeds > dim**2:
         print(f"You can't have {seeds} seeds! Defaulting to random")
         seeds = random.randint(1, (dim**2)/2)
-    num_of_iterations = int(input("How many iterations \
-                                  would you like to run: "))
-    if not 0 < num_of_iterations < 1000:
+    if seeds < 1:
+        seeds = random.randint(1, (dim**2)/2)
+        print(f"Seeded board with {seeds} seeds")
+    num_of_iterations = int(input("How many iterations " +
+                                  "would you like to run: "))
+    if not 0 < num_of_iterations < 300:
         print("Either too many or too few. Defaulting to 100.")
         num_of_iterations = 100
 
@@ -186,7 +189,8 @@ def main():
     out = game_on(board1, board2, num_of_iterations)
     out_stat = "Life reached status quo" if out else ""
     out_stat += "\nGame Over after"
-    print(out_stat, COUNTER, "iterations\n")
+    print(out_stat, board1.counter, "iterations\n")
+    input(u"\033[38;2;255;255;255mClick enter to quit")
 
 
 if __name__ == "__main__":
